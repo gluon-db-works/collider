@@ -11,7 +11,6 @@ public interface DatascriptTypes {
   IElementType ALIAS_CLAUSE = new DatascriptElementType("ALIAS_CLAUSE");
   IElementType ALL_DISTINCT = new DatascriptElementType("ALL_DISTINCT");
   IElementType CONNECTION = new DatascriptElementType("CONNECTION");
-  IElementType DATASCRIPT_FILE = new DatascriptElementType("DATASCRIPT_FILE");
   IElementType DATA_TYPE = new DatascriptElementType("DATA_TYPE");
   IElementType ENTITY_SELECTOR = new DatascriptElementType("ENTITY_SELECTOR");
   IElementType FETCH_LIST = new DatascriptElementType("FETCH_LIST");
@@ -24,6 +23,7 @@ public interface DatascriptTypes {
   IElementType JOIN_CLAUSE = new DatascriptElementType("JOIN_CLAUSE");
   IElementType ORDER_CLAUSE = new DatascriptElementType("ORDER_CLAUSE");
   IElementType PREFETCH_STATEMENT = new DatascriptElementType("PREFETCH_STATEMENT");
+  IElementType QUALIFIED_NAME = new DatascriptElementType("QUALIFIED_NAME");
   IElementType QUERY_GENERATOR = new DatascriptElementType("QUERY_GENERATOR");
   IElementType QUERY_PARAMETER = new DatascriptElementType("QUERY_PARAMETER");
   IElementType QUERY_PARAMETERS_LIST = new DatascriptElementType("QUERY_PARAMETERS_LIST");
@@ -145,9 +145,6 @@ public interface DatascriptTypes {
       else if (type == CONNECTION) {
         return new DsConnectionImpl(node);
       }
-      else if (type == DATASCRIPT_FILE) {
-        return new DsDatascriptFileImpl(node);
-      }
       else if (type == DATA_TYPE) {
         return new DsDataTypeImpl(node);
       }
@@ -183,6 +180,9 @@ public interface DatascriptTypes {
       }
       else if (type == PREFETCH_STATEMENT) {
         return new DsPrefetchStatementImpl(node);
+      }
+      else if (type == QUALIFIED_NAME) {
+        return new DsQualifiedNameImpl(node);
       }
       else if (type == QUERY_GENERATOR) {
         return new DsQueryGeneratorImpl(node);

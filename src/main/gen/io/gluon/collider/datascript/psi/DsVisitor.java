@@ -23,10 +23,6 @@ public class DsVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitDatascriptFile(@NotNull DsDatascriptFile o) {
-    visitPsiElement(o);
-  }
-
   public void visitEntitySelector(@NotNull DsEntitySelector o) {
     visitPsiElement(o);
   }
@@ -68,6 +64,10 @@ public class DsVisitor extends PsiElementVisitor {
   }
 
   public void visitPrefetchStatement(@NotNull DsPrefetchStatement o) {
+    visitPsiElement(o);
+  }
+
+  public void visitQualifiedName(@NotNull DsQualifiedName o) {
     visitPsiElement(o);
   }
 

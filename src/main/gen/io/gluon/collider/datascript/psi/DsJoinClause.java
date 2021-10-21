@@ -4,7 +4,6 @@ package io.gluon.collider.datascript.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import null.null;
 
 public interface DsJoinClause extends PsiElement {
 
@@ -12,7 +11,7 @@ public interface DsJoinClause extends PsiElement {
   DsAliasClause getAliasClause();
 
   @Nullable
-  null getQualifiedName();
+  DsQualifiedName getQualifiedName();
 
   @NotNull
   DsSqlExpression getSqlExpression();

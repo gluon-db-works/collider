@@ -32,7 +32,7 @@ public class DatascriptParser implements PsiParser, LightPsiParser {
   }
 
   static boolean parse_root_(IElementType t, PsiBuilder b, int l) {
-    return qualifiedName(b, l + 1);
+    return file(b, l + 1);
   }
 
   public static final TokenSet[] EXTENDS_SETS_ = new TokenSet[] {
@@ -128,40 +128,6 @@ public class DatascriptParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // NAMESPACE qualifiedName connection? namespaceElement*
-  public static boolean datascriptFile(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "datascriptFile")) return false;
-    if (!nextTokenIs(b, NAMESPACE)) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, DATASCRIPT_FILE, null);
-    r = consumeToken(b, NAMESPACE);
-    p = r; // pin = 1
-    r = r && report_error_(b, qualifiedName(b, l + 1));
-    r = p && report_error_(b, datascriptFile_2(b, l + 1)) && r;
-    r = p && datascriptFile_3(b, l + 1) && r;
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
-  }
-
-  // connection?
-  private static boolean datascriptFile_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "datascriptFile_2")) return false;
-    connection(b, l + 1);
-    return true;
-  }
-
-  // namespaceElement*
-  private static boolean datascriptFile_3(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "datascriptFile_3")) return false;
-    while (true) {
-      int c = current_position_(b);
-      if (!namespaceElement(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "datascriptFile_3", c)) break;
-    }
-    return true;
-  }
-
-  /* ********************************************************** */
   // (qualifiedName|subSelect) aliasClause?
   public static boolean entitySelector(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "entitySelector")) return false;
@@ -239,6 +205,40 @@ public class DatascriptParser implements PsiParser, LightPsiParser {
   private static boolean fetchStream_2(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "fetchStream_2")) return false;
     prefetchStatement(b, l + 1);
+    return true;
+  }
+
+  /* ********************************************************** */
+  // NAMESPACE qualifiedName connection? namespaceElement*
+  static boolean file(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "file")) return false;
+    if (!nextTokenIs(b, NAMESPACE)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeToken(b, NAMESPACE);
+    p = r; // pin = 1
+    r = r && report_error_(b, qualifiedName(b, l + 1));
+    r = p && report_error_(b, file_2(b, l + 1)) && r;
+    r = p && file_3(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // connection?
+  private static boolean file_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "file_2")) return false;
+    connection(b, l + 1);
+    return true;
+  }
+
+  // namespaceElement*
+  private static boolean file_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "file_3")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!namespaceElement(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "file_3", c)) break;
+    }
     return true;
   }
 
@@ -437,14 +437,14 @@ public class DatascriptParser implements PsiParser, LightPsiParser {
 
   /* ********************************************************** */
   // ID ('.' ID)*
-  static boolean qualifiedName(PsiBuilder b, int l) {
+  public static boolean qualifiedName(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "qualifiedName")) return false;
     if (!nextTokenIs(b, ID)) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, ID);
     r = r && qualifiedName_1(b, l + 1);
-    exit_section_(b, m, null, r);
+    exit_section_(b, m, QUALIFIED_NAME, r);
     return r;
   }
 

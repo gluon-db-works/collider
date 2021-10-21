@@ -10,7 +10,6 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.gluon.collider.datascript.psi.DatascriptTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.gluon.collider.datascript.psi.*;
-import null.null;
 
 public class DsJoinClauseImpl extends ASTWrapperPsiElement implements DsJoinClause {
 
@@ -36,8 +35,8 @@ public class DsJoinClauseImpl extends ASTWrapperPsiElement implements DsJoinClau
 
   @Override
   @Nullable
-  public null getQualifiedName() {
-    return findChildByClass(null.class);
+  public DsQualifiedName getQualifiedName() {
+    return findChildByClass(DsQualifiedName.class);
   }
 
   @Override

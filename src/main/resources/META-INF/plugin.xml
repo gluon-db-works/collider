@@ -15,6 +15,10 @@
                   fieldName="INSTANCE" language="Datascript" extensions="ds"/>
         <lang.parserDefinition language="Datascript"
                                implementationClass="io.gluon.collider.datascript.DatascriptParserDefinition"/>
+        <lang.syntaxHighlighterFactory language="Datascript"
+                                       implementationClass="io.gluon.collider.datascript.ui.DatascriptSyntaxHighlighterFactory"/>
+        <lang.foldingBuilder language="Datascript"
+                             implementationClass="io.gluon.collider.datascript.ui.DatascriptFoldingBuilder"/>
 
     </extensions>
 

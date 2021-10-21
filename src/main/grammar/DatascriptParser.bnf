@@ -97,11 +97,10 @@
     extends(".*Generator") = repoElement
 }
 
+file ::= NAMESPACE qualifiedName connection? namespaceElement* { pin = 1 }
+
 qualifiedName ::= ID ('.' ID)*
 private meta comma_separated_list ::= <<param>> ( ',' <<param>> ) *
-
-
-datascriptFile ::= NAMESPACE qualifiedName connection? namespaceElement* { pin = 1 }
 
 connection ::= CONNECT ID STRING {
     pin = 1

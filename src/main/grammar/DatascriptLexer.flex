@@ -45,8 +45,6 @@ STRING=('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")
   "repository"       { return REPOSITORY; }
   "as"               { return AS; }
   "prepared"         { return PREPARED; }
-  "batch"            { return BATCH; }
-  "find"             { return FIND; }
   "query"            { return QUERY; }
   "prefetch"         { return PREFETCH; }
   "rows"             { return ROWS; }
