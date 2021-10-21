@@ -1,0 +1,234 @@
+{
+  parserClass="io.gluon.collider.datascript.parser.DatascriptParser"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Ds"
+  psiImplClassSuffix="Impl"
+  psiPackage="io.gluon.collider.datascript.psi"
+  psiImplPackage="io.gluon.collider.datascript.psi.impl"
+
+  elementTypeHolderClass="io.gluon.collider.datascript.psi.DatascriptTypes"
+  elementTypeClass="io.gluon.collider.datascript.psi.DatascriptElementType"
+  tokenTypeClass="io.gluon.collider.datascript.psi.DatascriptTokenType"
+
+  tokens=[
+        LBRACE    = "{"
+        RBRACE    = "}"
+        LBRACKET  = "["
+        RBRACKET  = "]"
+        LPAREN    = "("
+        RPAREN    = ")"
+
+        DOT    = "."
+        COMMA     = ","
+        SEMICOLON = ";"
+        COLON = ":"
+        MINUS = "-"
+        PLUS  = "+"
+        DIV   = "/"
+        MUL   = "*"
+        CONCATENATE = "||"
+
+        EQ     = "="
+        NEQ    = "<>"
+        GT     = ">"
+        GT_EQ  = ">="
+        LT     = "<"
+        LT_EQ  = "<="
+        OR     = "or"
+        AND    = "and"
+        NOT    = "not"
+        IS     = "is"
+        LIKE   = "like"
+
+        NULL     = "null"
+        SYSDATE  = "sysdate"
+        BETWEEN  = "between"
+        ALL      = "all"
+        DISTINCT = "distinct"
+        COUNT    = "count"
+
+        INT_TYPE           = "int"
+        NULLABLE_INT_TYPE  = "int?"
+        LONG_TYPE          = "long"
+        NULLABLE_LONG_TYPE = "long?"
+        DOUBLE_TYPE        = "double"
+        DECIMAL_TYPE       = "decimal"
+        STRING_TYPE        = "string"
+        BOOLEAN_TYPE       = "boolean"
+        DATE_TYPE          = "date"
+        TIMESTAMP_TYPE     = "timestamp"
+
+        DATE      = "regexp:d/\d+/"
+        COMMENT   = 'regexp://.*'
+        INT       = 'regexp:\d+'
+        NUMBER    = 'regexp:\d+(\.\d*)?'
+        ID        = 'regexp:\p{Alpha}\w*'
+        STRING    = "regexp:('([^'\\]|\\.)*'|\"([^\"\\]|\\.)*\")"
+
+        NAMESPACE  = "namespace"
+        CONNECT    = "connect"
+        REPOSITORY = "repository"
+        PREPARED   = "prepared"
+        QUERY      = "query"
+        ROWS       = "rows"
+        FETCH      = "fetch"
+        ONE        = "one"
+        LIST       = "list"
+        STREAM     = "stream"
+
+        SELECT     = "select"
+        FROM       = "from"
+        JOIN       = "join"
+        WHERE      = "where"
+        GROUP      = "group"
+        HAVING     = "having"
+        ORDER      = "order"
+        BY         = "by"
+        ASC        = "asc"
+        DESC       = "desc"
+        AS         = "as"
+        ON         = "on"
+    ]
+
+    extends(".*Expression") = sqlExpression
+    // extends(".*Callable") = sqlCallable
+    extends(".*Generator") = repoElement
+}
+
+qualifiedName ::= ID ('.' ID)*
+private meta comma_separated_list ::= <<param>> ( ',' <<param>> ) *
+
+
+datascriptFile ::= NAMESPACE qualifiedName connection? namespaceElement* { pin = 1 }
+
+connection ::= CONNECT ID STRING {
+    pin = 1
+    recoverWhile = namespaceRecover
+}
+
+// private namespaceRecover ::= !(ENUM|ENTITY|COMMENT|REPO)
+
+private namespaceRecover ::= !REPOSITORY
+
+// private namespaceElement ::= enumDefinition | entityDefinition | repoDefinition
+private namespaceElement ::= repositoryDefinition
+
+// REPOSITORY
+
+repositoryDefinition ::= REPOSITORY ID '{' repoElement* '}' {
+                                                pin = 1
+                                                recoverWhile = namespaceRecover
+                                            }
+
+// repoElement ::= sequenceGenerator | callGenerator | queryGenerator
+repoElement ::= queryGenerator
+
+// TYPES
+
+sqlType ::= INT_TYPE|NULLABLE_INT_TYPE|LONG_TYPE|NULLABLE_LONG_TYPE|DOUBLE_TYPE|DECIMAL_TYPE|STRING_TYPE|BOOLEAN_TYPE|DATE_TYPE|TIMESTAMP_TYPE
+dataType ::= sqlType | ID
+
+// QUERY
+
+queryGenerator ::= PREPARED? QUERY ID queryParametersList? '{' fullSelect '}' queryFetch?
+
+queryParametersList ::= '(' <<comma_separated_list ( queryParameter )>> ')'
+queryParameter ::= ID dataType
+
+private queryFetch ::= fetchOne | fetchList | fetchStream
+fetchOne ::= FETCH ONE
+fetchList ::= FETCH LIST prefetchStatement?
+fetchStream ::= FETCH STREAM prefetchStatement?
+prefetchStatement ::= PREFETCH INT ROWS
+
+// SELECT
+
+// entitySelect ::= whereClause? orderClause? hierarchyClause?
+fullSelect ::= fromClause joinClause* whereClause? groupClause? orderClause? selectClause
+
+fromClause ::= FROM <<comma_separated_list ( entitySelector )>>
+entitySelector ::= (qualifiedName|subSelect) aliasClause?
+subSelect ::= '(' fullSelect ')'
+
+aliasClause ::= AS ID
+
+orderClause ::= ORDER BY <<comma_separated_list ( sortSpecification )>>
+sortSpecification ::= sqlExpression sortOrder?
+sortOrder ::= ASC|DESC
+
+whereClause ::= WHERE sqlExpression
+
+groupClause ::= GROUP BY <<comma_separated_list ( sqlExpression )>> havingClause?
+havingClause ::= HAVING sqlExpression
+
+selectClause ::= SELECT allDistinct? selectListClause
+allDistinct ::= ALL | DISTINCT
+selectListClause ::= <<comma_separated_list ( selectIdentifier )>>
+private selectIdentifier ::= ID ('.' ID)?
+
+joinClause ::= JOIN (qualifiedName|subSelect) aliasClause ON sqlExpression
+
+// SQL EXPRESSIONS
+
+sqlExpression ::= sqlAnd sqlOrExpression*
+
+left sqlOrExpression ::= OR sqlAnd
+
+private sqlAnd ::= sqlComparison sqlAndExpression*
+
+left sqlAndExpression ::= AND sqlComparison
+
+private sqlComparison ::= sqlPlusOrMinus sqlComparisonExpression*
+
+left sqlComparisonExpression ::= sqlComparisonOp sqlPlusOrMinus
+
+sqlComparisonOp ::= "=" | "<>" | ">=" | "<=" | ">" | "<" | IS | LIKE
+
+
+private sqlPlusOrMinus ::= sqlMulOrDiv sqlPlusOrMinusExpression*
+
+left sqlPlusOrMinusExpression ::= sqlPlusOrMinusOp sqlMulOrDiv
+
+sqlPlusOrMinusOp ::= "+" | "-" | CONCATENATE
+
+private sqlMulOrDiv ::= sqlPrimaryExpression sqlMulOrDivExpression*
+
+left sqlMulOrDivExpression ::= sqlMulOrDivOp sqlPrimaryExpression
+
+sqlMulOrDivOp ::= "*" | "/"
+
+private sqlPrimaryExpression ::= sqlParanthesisExpression | sqlNotExpression | sqlCountFunctionExpression | sqlFunctionExpression | sqlBetween
+
+sqlParanthesisExpression ::= '(' sqlExpression ')'
+
+sqlNotExpression ::= NOT sqlExpression
+
+sqlCountFunctionExpression ::= COUNT '(' ('*'| DISTINCT? sqlExpression) ')'
+
+private sqlBetween ::= sqlIn sqlBetweenExpression?
+
+left sqlBetweenExpression ::= BETWEEN sqlAtomicExpression AND sqlAtomicExpression
+
+private sqlIn ::= sqlAtomicExpression sqlInExpression?
+
+sqlInExpression ::= IN ( subSelect | sqlAtomicList )
+
+sqlAtomicList ::= '(' <<comma_separated_list ( sqlAtomicExpression )>>  ')'
+
+sqlFunctionExpression ::= qualifiedName '(' <<comma_separated_list ( sqlExpression )>> ')'
+
+private sqlAtomicExpression ::= sqlLiteral | sqlParameterExpression | sqlColumnRefExpression
+
+private sqlLiteral ::= sqlIntLiteralExpression | sqlStringLiteralExpression | sqlDateLiteralExpression | sqlSysDateLiteralExpression | sqlNullLiteralExpression
+
+sqlIntLiteralExpression ::= INT
+sqlStringLiteralExpression ::= STRING
+sqlDateLiteralExpression ::= DATE
+sqlSysDateLiteralExpression ::= SYSDATE
+sqlNullLiteralExpression ::= NULL
+
+sqlColumnRefExpression ::= ID ('.' ID)*
+// sqlSimpleColumnRefExpression ::= ID
+sqlParameterExpression ::= ':' ID

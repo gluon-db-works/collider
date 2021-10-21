@@ -1,18 +1,25 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.demiusacademius.collider</id>
+    <id>io.gluon.collider</id>
     <name>collider</name>
     <vendor>demiusacademius</vendor>
 
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.demiusacademius.collider.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.demiusacademius.collider.services.MyProjectService"/>
+        <applicationService serviceImplementation="io.gluon.collider.services.MyApplicationService"/>
+        <projectService serviceImplementation="io.gluon.collider.services.MyProjectService"/>
+
+        <fileType name="Datascript"
+                  implementationClass="io.gluon.collider.datascript.DatascriptFileType"
+                  fieldName="INSTANCE" language="Datascript" extensions="ds"/>
+        <lang.parserDefinition language="Datascript"
+                               implementationClass="io.gluon.collider.datascript.DatascriptParserDefinition"/>
+
     </extensions>
 
     <applicationListeners>
-        <listener class="com.github.demiusacademius.collider.listeners.MyProjectManagerListener"
+        <listener class="io.gluon.collider.listeners.MyProjectManagerListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
 </idea-plugin>
